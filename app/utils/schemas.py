@@ -13,7 +13,10 @@ class BaseInput(BaseModel):
         values = super().dict(*args, **kwargs)
         for k, v in values.items():
             if isinstance(v, (datetime, date)):
-                values[k] = v.replace(tzinfo=None)
+                if isinstance(v, datetime):
+                    values[k] = v.replace(tzinfo=None)
+                elif isinstance(v, date):
+                    values[k] = datetime(v.year, v.month, v.day)
 
         return values
 

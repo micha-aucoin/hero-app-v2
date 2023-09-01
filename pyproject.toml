@@ -5,7 +5,7 @@ description = "The project to demonstrate api service development pattern using 
 authors = ["ETretyakov <48686786+ETretyakov@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "hero_app_v2"}]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
