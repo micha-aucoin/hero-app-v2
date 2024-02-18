@@ -105,7 +105,7 @@ class HeroServices:
             )
 
         if schema.role:
-            filters.append(Hero.role == schema.role)
+            filters.append(Hero.role == schema.role.value)
 
         if not as_staff:
             filters.append(Hero.deleted_at.is_(None))

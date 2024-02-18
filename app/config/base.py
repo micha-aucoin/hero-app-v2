@@ -75,6 +75,9 @@ class Security(BaseSettings):
         env_file: str = ENV_FILE_PATH
 
     api_key: str = "secret_key"
+    jwt_secret: str = "jwt_secret"
+    jwt_algorithm: str = "HS256"
+    jwt_token_expire_minutes: int = 30
 
 
 class Config(BaseSettings):

@@ -1,0 +1,73 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-22.04"
+  config.vm.hostname = 'ubuntu2204'
+  config.vm.network "public_network"
+  config.vm.synced_folder "..", "/home/vagrant/hero-app-v2", type: "smb"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 15432, host: 15432
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 4 
+    vb.memory = "8192" # 8GB of RAM
+  end
+
+  config.vm.provision "install_pkgs", type: "shell" do |s|
+    s.path = "config/pkg_mgmt/install.sh"
+  end
+
+  # config.vm.provision "remove_pkgs", type: "shell" do |s|
+  #   s.path = "config/pkg_mgmt/remove.sh"
+  # end
+
+  config.vm.provision "install_docker", type: "shell" do |s|
+    s.path = "config/install/docker.sh"
+  end
+
+  config.vm.provision "install_miniconda", type: "shell", privileged: false do |s|
+    s.path = "config/install/miniconda.sh"
+    s.env = {"MINICONDA_VERSION" => "py310_23.11.0-2"}
+  end
+
+  config.vm.provision "poetry_venv", type: "shell", privileged: false do |s|
+    s.inline = <<-SHELL
+      # Source Conda initialization script
+      source /home/vagrant/miniconda3/etc/profile.d/conda.sh || echo "Conda init script not found!"
+
+      conda create -n poetry python=3.11 -y
+      conda activate poetry
+
+      pip install poetry
+    SHELL
+  end
+
+  config.vm.provision "set_timezone", type: "shell" do |s|
+    s.inline = "timedatectl set-timezone 'America/Chicago'"
+  end
+
+  config.vm.provision "ssh_keygen", type: "shell", privileged: false do |s|
+    s.inline = "ssh-keygen -t ed25519 -f '/home/vagrant/.ssh/hero-vagrant' -N '' -C 'hero-vagrant'"
+  end
+
+  config.vm.provision "reload_bashrc", type: "shell" do |s|
+    s.inline = <<-SHELL
+      # Define a marker
+      MARKER="# --- BEGIN VAGRANT CUSTOM BASHRC ---"
+
+      # Locate the marker; if it exists, truncate the file from that line
+      if grep -q "$MARKER" /home/vagrant/.bashrc; then
+        sed -i '/^# --- BEGIN VAGRANT CUSTOM BASHRC ---/,$d' /home/vagrant/.bashrc
+      fi
+
+      # Append the marker and then new content
+      echo "$MARKER" >> /home/vagrant/.bashrc
+      cat /vagrant/config/bash/.bashrc >> /home/vagrant/.bashrc
+      cat /vagrant/config/bash/.bash_aliases > /home/vagrant/.bash_aliases
+    SHELL
+  end
+
+end
+

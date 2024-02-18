@@ -1,0 +1,61 @@
+services:
+  hero-app-v2:
+    build: .
+    image: hero-app-v2
+    container_name: hero-app-v2
+    env_file:
+      - .env-example
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/hero-app-v2
+    networks:
+      - hero-app-v2-net
+    depends_on:
+      hero-pg:
+        condition: service_healthy
+
+  hero-pg:
+    image: bitnami/postgresql:13
+    container_name: hero-pg
+    environment:
+      - POSTGRESQL_USERNAME=hero
+      - POSTGRESQL_PASSWORD=heroPass123
+      - POSTGRESQL_DATABASE=heroes_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data-new:/bitnami/postgresql
+    networks:
+      - hero-app-v2-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hero -d heroes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:4.23
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 15432:80
+    volumes:
+      - pgadmin-new:/var/lib/pgadmin
+    depends_on:
+      - hero-pg
+    networks:
+      - hero-app-v2-net
+
+volumes:
+  pg-data-new:
+    name: pg-data-new
+  pgadmin-new:
+    name: pgadmin-new
+
+networks:
+  hero-app-v2-net:
+    name: hero-app-v2-net

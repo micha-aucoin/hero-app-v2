@@ -1,0 +1,5 @@
+curl
+bash-completion
+git
+fzf
+jq
