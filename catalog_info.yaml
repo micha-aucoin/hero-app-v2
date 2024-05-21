@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hero-app-v2
+  description: The place to be, for great heroes
+  labels:
+		backstage.io/kubernetes-id: hero-app-v2
+  annotations:
+		backstage.io/kubernetes-id: hero-app-v2
+		backstage.io/kubernetes-namespace: hero-app-v2
+		janus-idp.io/tekton : hero-app-v2
+    example.com/service-discovery: artistweb
+    circleci.com/project-slug: github/example-org/artist-website
+  tags:
+    - python
+spec:
+  type: website
+  lifecycle: production
+  owner: guest
+  system: guest
