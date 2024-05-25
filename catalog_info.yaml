@@ -4,6 +4,7 @@ metadata:
   name: hero-app-v2
   description: The place to be, for great heroes
   annotations:
+    backstage.io/kubernetes-label-selector: 'app=hero-app-v2'
     janus-idp.io/tekton : hero-app-v2
   tags:
     - python
